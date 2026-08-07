@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VinBank SOC — Security Operations Center</title>
+  <meta name="description" content="VinBank Security Operations Center - Red Team vs Blue Team AI Agent Security">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+</head>
+<body>
+
+  <!-- Matrix Rain Background -->
+  <canvas id="matrix"></canvas>
+  <div class="scanline"></div>
+
+  <div class="app">
+
+    <!-- ═══ HEADER ═══ -->
+    <header>
+      <div class="logo glitch" data-text="VINBANK SOC">VINBANK <span>SOC</span></div>
+      <div class="status-bar">
+        <span><span class="status-dot online"></span>ONLINE</span>
+        <span id="modelInfo">Model: ...</span>
+        <span class="endpoint-tag" id="endpointTag" title="Click to copy endpoint URL">📡 /api/vinbank/chat</span>
+      </div>
+    </header>
+
+    <!-- ═══ SPLIT PANELS ═══ -->
+    <div class="panels">
+
+      <!-- ═══════════════ ATTACK PANEL ═══════════════ -->
+      <div class="panel attack">
+        <div class="panel-header">⚔️ ATTACK OPERATIONS</div>
+        <div class="panel-body">
+
+          <!-- Target URL -->
+          <div>
+            <div class="section-label">Target Endpoint</div>
+            <div class="input-group">
+              <input type="text" id="targetUrl" placeholder="http://teammate-ip:8000/api/vinbank/chat">
+              <button class="btn btn-ping" id="btnPing">PING</button>
+            </div>
+            <div class="target-status" id="targetStatus"></div>
+          </div>
+
+          <!-- Attack Presets -->
+          <div>
+            <div class="section-label">Attack Category</div>
+            <div class="preset-grid">
+              <button class="preset-btn" data-type="direct">⚡ Direct</button>
+              <button class="preset-btn" data-type="indirect">📧 Indirect</button>
+              <button class="preset-btn" data-type="obfuscation">🔣 Obfuscate</button>
+              <button class="preset-btn" data-type="social">🎭 Social Eng</button>
+              <button class="preset-btn" data-type="egress">🚪 Egress</button>
+              <button class="preset-btn" data-type="custom">✏️ Custom</button>
+            </div>
+          </div>
+
+          <!-- Attack Payload -->
+          <div>
+            <div class="section-label">Attack Payload</div>
+            <textarea id="attackInput" placeholder="Enter attack prompt or select preset... (Ctrl+Enter to send)"></textarea>
+          </div>
+
+          <!-- Launch Buttons -->
+          <div class="launch-row">
+            <button class="btn btn-attack" id="btnLaunch">🚀 LAUNCH ATTACK</button>
+          </div>
+          <button class="btn btn-batch" id="btnBatch">⚡ BATCH ATTACK — ALL PRESETS</button>
+
+          <!-- Attack Log -->
+          <div class="log-section">
+            <div class="section-label">Attack Results</div>
+            <div class="log-container" id="attackLog">
+              <div class="empty-log">
+                <span class="icon">⚔️</span>
+                No attacks launched yet.<br>Enter a target URL and fire!
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ═══════════════ DEFENSE PANEL ═══════════════ -->
+      <div class="panel defense">
+        <div class="panel-header">🛡️ DEFENSE OPERATIONS</div>
+        <div class="panel-body">
+
+          <!-- Stats -->
+          <div>
+            <div class="section-label">Defense Metrics</div>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-value" id="statTotal">0</span>
+                <span class="stat-label">Total</span>
+              </div>
+              <div class="stat-card danger">
+                <span class="stat-value" id="statBlocked">0</span>
+                <span class="stat-label">Blocked</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value" id="statPassed">0</span>
+                <span class="stat-label">Passed</span>
+              </div>
+              <div class="stat-card info">
+                <span class="stat-value" id="statRate">0%</span>
+                <span class="stat-label">Block Rate</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Guardrails -->
+          <div>
+            <div class="section-label">Active Guardrails</div>
+            <div class="guardrail-list">
+              <div class="guardrail-item"><span class="guardrail-dot"></span> Input Injection</div>
+              <div class="guardrail-item"><span class="guardrail-dot"></span> Topic Filter</div>
+              <div class="guardrail-item"><span class="guardrail-dot"></span> Output Filter</div>
+              <div class="guardrail-item"><span class="guardrail-dot"></span> Rate Limiter</div>
+            </div>
+          </div>
+
+          <!-- Defense Log -->
+          <div class="log-section">
+            <div class="section-label">Incoming Requests Log</div>
+            <div class="log-container" id="defenseLog">
+              <div class="empty-log">
+                <span class="icon">🛡️</span>
+                Waiting for incoming requests...<br>Share your endpoint with teammates!
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- .panels -->
+  </div><!-- .app -->
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
