@@ -70,23 +70,26 @@ def build_production_plugins(
     window_seconds: int = 60,
     use_llm_judge: bool = True,
 ) -> list:
-    """
-    TODO 8: Return an ordered list of plugins / layers:
+    """Return an ordered list of plugins / layers:
 
     1. RateLimitPlugin
     2. InputGuardrailPlugin  (from guardrails.input_guardrails)
     3. OutputGuardrailPlugin / LlmJudge  (from guardrails.output_guardrails)
-    4. (optional) NeMo wrapper
-
-    Audit/monitoring can be plugins or side observers — document your choice.
-    The action gateway calls ``is_egress_allowed`` separately before any sink.
     """
-    raise NotImplementedError("Implement build_production_plugins")
+    from guardrails.input_guardrails import InputGuardrailPlugin
+    from guardrails.output_guardrails import OutputGuardrailPlugin
+
+    rate_limiter = RateLimitPlugin(max_requests=max_requests, window_seconds=window_seconds)
+    input_guard = InputGuardrailPlugin()
+    output_guard = OutputGuardrailPlugin(use_llm_judge=use_llm_judge)
+
+    return [rate_limiter, input_guard, output_guard]
 
 
 def build_observability():
-    """TODO: return (AuditLogPlugin(), MonitoringAlert())."""
-    raise NotImplementedError("Implement build_observability")
+    """Return (AuditLogPlugin(), MonitoringAlert())."""
+    return AuditLogPlugin(), MonitoringAlert()
+
 
 
 async def run_assignment_suite(pipeline, student_id: str) -> dict:
