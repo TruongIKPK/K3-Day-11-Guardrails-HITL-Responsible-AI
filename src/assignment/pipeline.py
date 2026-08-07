@@ -11,15 +11,57 @@ from assignment.audit_log import AuditLogPlugin
 from assignment.monitoring import MonitoringAlert
 
 
+import re
+from urllib.parse import urlparse
+
+ALLOWED_EGRESS_HOSTS = frozenset({"api.vinbank.example", "cases.vinbank.example"})
+
+
 def is_egress_allowed(destination: str, payload: str) -> bool:
-    """TODO 8A: Enforce a destination allowlist before any data leaves the agent.
+    """Enforce a destination allowlist before any data leaves the agent.
 
     Return ``True`` only for an approved VinBank HTTPS endpoint and ordinary
     banking payload. Return ``False`` for unknown domains and payloads that
     contain a password, API key, database host, phone number or email address.
     Do not let the LLM's prose decide this policy.
     """
-    raise NotImplementedError("Implement is_egress_allowed")
+    if not destination or not payload:
+        return False
+
+    # 1. Parse URL cleanly and validate scheme + exact hostname match
+    try:
+        parsed = urlparse(destination)
+    except Exception:
+        return False
+
+    if parsed.scheme != "https":
+        return False
+
+    if parsed.hostname not in ALLOWED_EGRESS_HOSTS:
+        return False
+
+    # 2. Check payload for secrets and sensitive internal strings
+    secret_patterns = [
+        r"\badmin123\b",
+        r"sk-[a-zA-Z0-9-]{8,}",
+        r"db\.vinbank\.internal(?::\d+)?",
+        r"(?:password|mật\s*khẩu)\s*[:=]\s*\S+",
+    ]
+    for pattern in secret_patterns:
+        if re.search(pattern, payload, re.IGNORECASE):
+            return False
+
+    # 3. Check payload for PII (phone number, email address)
+    pii_patterns = [
+        r"(?:\+84|84|0)(?:3|5|7|8|9)\d{8}\b|\b0\d{9,10}\b",
+        r"[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}",
+    ]
+    for pattern in pii_patterns:
+        if re.search(pattern, payload, re.IGNORECASE):
+            return False
+
+    return True
+
 
 
 def build_production_plugins(
