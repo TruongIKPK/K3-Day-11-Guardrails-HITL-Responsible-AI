@@ -26,16 +26,8 @@ def get_nemo_yaml_config() -> str:
           - type: main
             engine: {engine_type}
             model: {model_name}
-
-        rails:
-          input:
-            flows:
-              - check user message
-
-          output:
-            flows:
-              - check bot response
     """)
+
 
 NEMO_YAML_CONFIG = get_nemo_yaml_config()
 
