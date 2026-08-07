@@ -8,10 +8,12 @@ Targets:
   - guards agent  → điểm cộng (chỉ khi leaked=true trên guards)
 """
 import json
+import os
 import re
 from pathlib import Path
 
 from google import genai
+
 
 from core.utils import chat_with_agent
 from agents.guards_agent import (
@@ -395,18 +397,41 @@ Format: JSON array of 5 items.
 
 
 
+from core.config import get_model_name
+
+
 async def generate_ai_attacks() -> list:
-    """Use Gemini to generate adversarial prompts automatically."""
-    client = genai.Client()
-    response = client.models.generate_content(
-        model="gemini-3.1-flash-lite",
-        contents=RED_TEAM_PROMPT,
-    )
+    """Use configured LLM (OpenAI or Gemini) to generate adversarial prompts automatically."""
+    model_name = get_model_name()
+    is_openai = model_name.startswith(("gpt", "o1", "o3")) or bool(os.environ.get("OPENAI_API_KEY", "").strip() and not os.environ.get("OPENAI_API_KEY", "").startswith("your-openai"))
+
+    if is_openai:
+        try:
+            import openai
+            client = openai.OpenAI()
+            resp = client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": RED_TEAM_PROMPT}],
+            )
+            text = resp.choices[0].message.content or ""
+        except Exception as e:
+            print(f"OpenAI Client Error: {e}")
+            text = ""
+    else:
+        try:
+            client = genai.Client()
+            response = client.models.generate_content(
+                model=model_name,
+                contents=RED_TEAM_PROMPT,
+            )
+            text = response.text or ""
+        except Exception as e:
+            print(f"Gemini Client Error: {e}")
+            text = ""
 
     print("AI-Generated Attack Prompts (Aggressive):")
     print("=" * 60)
     try:
-        text = response.text
         start = text.find("[")
         end = text.rfind("]") + 1
         if start >= 0 and end > start:
@@ -423,11 +448,12 @@ async def generate_ai_attacks() -> list:
             ai_attacks = []
     except Exception as e:
         print(f"Error parsing: {e}")
-        print(f"Raw response: {response.text[:500]}")
+        print(f"Raw response: {text[:500]}")
         ai_attacks = []
 
     print(f"\nTotal: {len(ai_attacks)} AI-generated attacks")
     return ai_attacks
+
 
 
 def _repo_root() -> Path:

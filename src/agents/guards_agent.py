@@ -237,19 +237,23 @@ class GuardsOutputPlugin(base_plugin.BasePlugin):
         return llm_response
 
 
+from core.config import get_model_name
+
+
 def create_guards_agent():
     """Create VinBank agent with strong input + output guardrails (bonus target)."""
     plugins = [GuardsInputPlugin(), GuardsOutputPlugin()]
     agent = llm_agent.LlmAgent(
-        model="gemini-3.1-flash-lite",
+        model=get_model_name(),
         name="guards_assistant",
         instruction=GUARDS_INSTRUCTION,
     )
     runner = runners.InMemoryRunner(
         agent=agent, app_name="guards_test", plugins=plugins
     )
-    print("Guards agent created — STRONG guardrails (bonus attack target).")
+    print(f"Guards agent created ({get_model_name()}) — STRONG guardrails (bonus attack target).")
     return agent, runner
+
 
 
 async def smoke_test_guards_agent():

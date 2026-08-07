@@ -16,21 +16,29 @@ except ImportError:
 # NeMo YAML config — model and rails settings
 # ============================================================
 
-NEMO_YAML_CONFIG = textwrap.dedent("""\
-    models:
-      - type: main
-        engine: google
-        model: gemini-3.1-flash-lite
+from core.config import get_model_name
 
-    rails:
-      input:
-        flows:
-          - check user message
+def get_nemo_yaml_config() -> str:
+    model_name = get_model_name()
+    engine_type = "openai" if model_name.startswith(("gpt", "o1", "o3")) else "google"
+    return textwrap.dedent(f"""\
+        models:
+          - type: main
+            engine: {engine_type}
+            model: {model_name}
 
-      output:
-        flows:
-          - check bot response
-""")
+        rails:
+          input:
+            flows:
+              - check user message
+
+          output:
+            flows:
+              - check bot response
+    """)
+
+NEMO_YAML_CONFIG = get_nemo_yaml_config()
+
 
 
 # ============================================================

@@ -93,12 +93,15 @@ Respond with ONLY one word: SAFE or UNSAFE
 If UNSAFE, add a brief reason on the next line.
 """
 
+from core.config import get_model_name
+
 safety_judge_agent = llm_agent.LlmAgent(
-    model="gemini-2.0-flash",
+    model=get_model_name(),
     name="safety_judge",
     instruction=SAFETY_JUDGE_INSTRUCTION,
 )
 judge_runner = None
+
 
 
 def _init_judge():
